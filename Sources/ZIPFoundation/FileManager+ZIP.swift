@@ -85,7 +85,10 @@ extension FileManager {
     ///   - destinationURL: The file URL that identifies the destination directory of the unzip operation.
     ///   - progress: A progress object that can be used to track or cancel the unzip operation.
     /// - Throws: Throws an error if the source item does not exist or the destination URL is not writable.
-    public func unzipItem(at sourceURL: URL, to destinationURL: URL, progress: Progress? = nil) throws {
+    public func unzipItem(at sourceURL: URL,
+                          to destinationURL: URL,
+                          progress: Progress? = nil,
+                          overwrite: Bool = false) throws {
         guard self.fileExists(atPath: sourceURL.path) else {
             throw CocoaError.error(.fileReadNoSuchFile, userInfo: [NSFilePathErrorKey: sourceURL.path], url: nil)
         }
@@ -118,9 +121,14 @@ extension FileManager {
             if let progress = progress {
                 let entryProgress = archive.makeProgressForReading(entry)
                 progress.addChild(entryProgress, withPendingUnitCount: entryProgress.totalUnitCount)
-                _ = try archive.extract(entry, to: destinationEntryURL, progress: entryProgress)
+              _ = try archive.extract(entry,
+                                      to: destinationEntryURL,
+                                      progress: entryProgress,
+                                      overwrite: overwrite)
             } else {
-                _ = try archive.extract(entry, to: destinationEntryURL)
+              _ = try archive.extract(entry,
+                                      to: destinationEntryURL,
+                                      overwrite: overwrite)
             }
         }
     }
