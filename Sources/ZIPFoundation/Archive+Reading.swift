@@ -20,13 +20,16 @@ extension Archive {
     ///   - progress: A progress object that can be used to track or cancel the extract operation.
     /// - Returns: The checksum of the processed content.
     /// - Throws: An error if the destination file cannot be written or the entry contains malformed content.
-    public func extract(_ entry: Entry, to url: URL, bufferSize: UInt32 = defaultReadChunkSize,
-                        progress: Progress? = nil) throws -> CRC32 {
+    public func extract(_ entry: Entry,
+                        to url: URL,
+                        bufferSize: UInt32 = defaultReadChunkSize,
+                        progress: Progress? = nil,
+                        overwrite: Bool = false) throws -> CRC32 {
         let fileManager = FileManager()
         var checksum = CRC32(0)
         switch entry.type {
         case .file:
-            guard !fileManager.fileExists(atPath: url.path) else {
+            guard (!fileManager.fileExists(atPath: url.path) || overwrite == true) else {
                 throw CocoaError.error(.fileWriteFileExists, userInfo: [NSFilePathErrorKey: url.path], url: nil)
             }
             try fileManager.createParentDirectoryStructure(for: url)
